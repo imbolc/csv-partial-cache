@@ -1,0 +1,17 @@
+[package]
+description = "Csv index with partially cached columns"
+edition = "2021"
+license = "MIT"
+name = "csv-partial-cache"
+repository = "https://github.com/imbolc/csv-partial-cache"
+version = "0.1.0"
+
+[dependencies]
+csv-line = "0.1"
+serde = { version = "1", features = ["derive"] }
+thiserror = "1"
+tokio = { version = "1", features = ["fs", "io-util"] }
+
+[dev-dependencies]
+rusty-hook = "0.11"
+tokio-test = "0.4"
