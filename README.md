@@ -16,7 +16,7 @@ Usage
 
 Let's say we have a table of http statuses:
 
-| code | name                | description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| code | name                | description                                           |
 |------|---------------------|-------------------------------------------------------|
 | 100  | Continue            | Status code 100 Continue tells you that a part ...    |
 | 101  | Switching Protocols | There have been many HTTP protocols created since ... |
