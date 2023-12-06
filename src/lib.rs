@@ -71,16 +71,25 @@
 
 #![warn(clippy::all, nonstandard_style, future_incompatible)]
 
-use serde::de::DeserializeOwned;
-use std::fs::File;
-use std::io::{self, BufRead, BufReader, Seek, SeekFrom};
+use serde::{de::DeserializeOwned, Serialize};
+use std::fs::{self, File};
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
+use std::{
+    io::{self, BufRead, BufReader, Seek, SeekFrom},
+    time::SystemTime,
+};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("can't open file: {1}")]
     OpenFile(#[source] std::io::Error, PathBuf),
+    #[error("can't create file: {1}")]
+    CreateFile(#[source] std::io::Error, PathBuf),
+    #[error("can't read file metadata: {1}")]
+    ReadFileMetadata(#[source] std::io::Error, PathBuf),
+    #[error("can't get file modification time: {1}")]
+    GetFileModified(#[source] std::io::Error, PathBuf),
     #[error("can't deserialize line: {1}")]
     DeserializeLine(#[source] csv_line::Error, String),
     #[error("can't read line {1} from {2}")]
@@ -102,6 +111,10 @@ pub enum Error {
         offset: u64,
         line: String,
     },
+    #[error("can't read cache from: {1}")]
+    ReadCache(#[source] serde_json::Error, PathBuf),
+    #[error("can't write cache into: {1}")]
+    WriteCache(#[source] serde_json::Error, PathBuf),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -143,9 +156,9 @@ impl<B: BufRead, O> LineOffset<B, O> {
 }
 
 impl<O> LineOffset<BufReader<File>, O> {
-    pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
-        let buf_name = path.as_ref().to_string_lossy().to_string();
-        let f = File::open(&path).map_err(|e| Error::OpenFile(e, path.as_ref().into()))?;
+    pub fn from_path(path: &Path) -> Result<Self> {
+        let buf_name = path.to_string_lossy().to_string();
+        let f = File::open(path).map_err(|e| Error::OpenFile(e, path.into()))?;
         let buf = BufReader::new(f);
         Ok(Self::from_buf(buf_name, buf))
     }
@@ -215,7 +228,8 @@ impl<T> CsvPartialCache<T>
 where
     T: FromLineOffset,
 {
-    pub fn new(path: impl AsRef<Path>) -> Result<Self> {
+    pub fn new(path: impl Into<PathBuf>) -> Result<Self> {
+        let path = path.into();
         let mut items = Vec::new();
         let mut index = LineOffset::from_path(&path)?;
         index.next(); // skip the header
@@ -224,10 +238,7 @@ where
             items.push(T::from_line_offset(&line, offset)?);
         }
         let items = items.into_boxed_slice();
-        Ok(Self {
-            path: path.as_ref().into(),
-            items,
-        })
+        Ok(Self { path, items })
     }
 
     /// .binary_search_by_key(&qid, |item| item.qid)
@@ -273,6 +284,59 @@ where
             line,
         })
     }
+}
+
+// #[cfg(feature = "cache")]
+impl<T> CsvPartialCache<T>
+where
+    T: FromLineOffset + DeserializeOwned + Serialize,
+{
+    /// Creates the index using intermediate json file for speed-up
+    pub fn from_cache(csv_path: impl Into<PathBuf>, cache_path: impl AsRef<Path>) -> Result<Self> {
+        let csv_path = csv_path.into();
+        let cache_path = cache_path.as_ref();
+        Ok(if is_cache_expired(&csv_path, cache_path)? {
+            let index = Self::new(csv_path)?;
+            Self::items_to_cache(&index.items, cache_path)?;
+            index
+        } else {
+            let items = Self::items_from_cache(cache_path)?;
+            Self {
+                path: csv_path,
+                items,
+            }
+        })
+    }
+
+    fn items_to_cache(items: &[T], cache_path: &Path) -> Result<()> {
+        let file = File::create(cache_path).map_err(|e| Error::CreateFile(e, cache_path.into()))?;
+        serde_json::to_writer(file, items).map_err(|e| Error::ReadCache(e, cache_path.into()))?;
+        Ok(())
+    }
+
+    fn items_from_cache(cache_path: &Path) -> Result<Box<[T]>> {
+        let file = File::open(cache_path).map_err(|e| Error::OpenFile(e, cache_path.into()))?;
+        let reader = BufReader::new(file);
+        let items: Vec<T> =
+            serde_json::from_reader(reader).map_err(|e| Error::ReadCache(e, cache_path.into()))?;
+        Ok(items.into_boxed_slice())
+    }
+}
+
+/// Checks if the csv file is modified after caching
+fn is_cache_expired(csv_path: &Path, cache_path: &Path) -> Result<bool> {
+    if !Path::new(cache_path).exists() {
+        return Ok(true);
+    }
+    let csv_modified = file_modified_at(csv_path)?;
+    let cache_modified = file_modified_at(cache_path)?;
+    Ok(cache_modified < csv_modified)
+}
+
+fn file_modified_at(path: &Path) -> Result<SystemTime> {
+    let meta = fs::metadata(path).map_err(|e| Error::ReadFileMetadata(e, path.into()))?;
+    meta.modified()
+        .map_err(|e| Error::GetFileModified(e, path.into()))
 }
 
 #[cfg(test)]
