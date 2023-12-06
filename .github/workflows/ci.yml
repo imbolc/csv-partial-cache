@@ -66,17 +66,17 @@ jobs:
       - name: Any typos?
         run: typos
 
-    cargo_sort:
-      runs-on: ubuntu-latest
+  cargo_sort:
+    runs-on: ubuntu-latest
 
-      steps:
-        - uses: actions/checkout@v3
-        - uses: actions-rs/toolchain@v1
-          with:
-            toolchain: stable
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
 
-        - name: Install cargo-sort
-          run: cargo install cargo-sort
+      - name: Install cargo-sort
+        run: cargo install cargo-sort
 
-        - name: Are Cargo configs sorted?
-          run: cargo sort -c
+      - name: Are Cargo configs sorted?
+        run: cargo sort -c
