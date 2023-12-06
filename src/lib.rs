@@ -152,7 +152,7 @@ impl<O> LineOffset<BufReader<File>, O> {
 #[cfg(test)]
 impl<O> LineOffset<io::Cursor<Vec<u8>>, O> {
     pub fn from_str(name: impl Into<String>, s: &str) -> Self {
-        let buf = io::Cursor::new(s.as_bytes().into_iter().cloned().collect());
+        let buf = io::Cursor::new(s.as_bytes().to_vec());
         Self::from_buf(name, buf)
     }
 }
@@ -195,7 +195,7 @@ where
             }
         };
         self.index += 1;
-        self.offset = match self.buf.seek(SeekFrom::Current(0)) {
+        self.offset = match self.buf.stream_position() {
             Ok(o) => o,
             Err(e) => {
                 return Some(Err(Error::SeekOffset(
@@ -264,14 +264,12 @@ where
     /// Returns the first record by the `id`, deserialized into `T`
     pub async fn full_record<D: DeserializeOwned>(&self, row: &T) -> Result<D> {
         let line = self.details_line(row).await?;
-        Ok(
-            csv_line::from_str::<D>(&line).map_err(|e| Error::DecodeDetails {
-                source: e,
-                file: self.path.clone(),
-                offset: row.offset().into(),
-                line,
-            })?,
-        )
+        csv_line::from_str::<D>(&line).map_err(|e| Error::DecodeDetails {
+            source: e,
+            file: self.path.clone(),
+            offset: row.offset().into(),
+            line,
+        })
     }
 }
 
