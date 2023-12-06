@@ -8,6 +8,8 @@
 
 <!-- cargo-sync-readme start -->
 
+# csv-partial-cache
+
 Csv index with partially cached columns
 
 It meant to allow a performant access to immutable csv data without importing it to database.

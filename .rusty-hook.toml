@@ -1,10 +1,17 @@
 [hooks]
-pre-commit = "cargo readme > README.md && git add README.md"
+pre-commit = """\
+    set -x \
+    && cargo fmt -- --check \
+    && cargo test --all-features --workspace --bins --examples --tests \
+    && cargo clippy --all-features --workspace --bins --examples --tests -- -D warnings \
+    && cargo sync-readme && git add README.md \
+    && typos \
+"""
 pre-push = """\
-    cargo fmt -- --check \
-    && cargo test \
-    && cargo clippy -- -D warnings \
-    """
+    set -x \
+    && cargo sync-readme -c \
+    && cargo sort -c \
+"""
 
 [logging]
 verbose = true
