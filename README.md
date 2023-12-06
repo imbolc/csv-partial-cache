@@ -2,10 +2,6 @@
 [![Crates.io](https://img.shields.io/crates/v/csv-partial-cache.svg)](https://crates.io/crates/csv-partial-cache)
 [![Docs.rs](https://docs.rs/csv-partial-cache/badge.svg)](https://docs.rs/csv-partial-cache)
 
-[![License](https://img.shields.io/crates/l/{{project-name}}.svg)](https://choosealicense.com/licenses/mit/)
-[![Crates.io](https://img.shields.io/crates/v/{{project-name}}.svg)](https://crates.io/crates/{{project-name}})
-[![Docs.rs](https://docs.rs/{{project-name}}/badge.svg)](https://docs.rs/{{project-name}})
-
 <!-- cargo-sync-readme start -->
 
 # csv-partial-cache
