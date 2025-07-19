@@ -317,7 +317,7 @@ mod tests {
     #[test]
     fn iteration_offset_overflow() {
         let line1 = "x".repeat(255);
-        let mut items = LineOffset::<_, u8>::from_str("noname", &format!("{}\nfoo", line1));
+        let mut items = LineOffset::<_, u8>::from_str("noname", &format!("{line1}\nfoo"));
         assert_eq!(items.next().unwrap().unwrap(), (line1, 0));
         assert!(matches!(items.next().unwrap(), Err(Error::IntoOffset(..))));
     }
