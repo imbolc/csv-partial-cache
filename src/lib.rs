@@ -71,7 +71,7 @@
 
 #![warn(clippy::all, nonstandard_style, future_incompatible)]
 
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use std::fs::{self, File};
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
@@ -91,7 +91,7 @@ pub enum Error {
     #[error("can't get file modification time: {1}")]
     GetFileModified(#[source] std::io::Error, PathBuf),
     #[error("can't deserialize line: {1}")]
-    DeserializeLine(#[source] csv_line::Error, String),
+    DeserializeLine(#[source] csv::Error, String),
     #[error("can't read line {1} from {2}")]
     ReadLine(#[source] io::Error, usize, String),
     #[error("can't seek for offset of line {1} in {2}")]
@@ -103,10 +103,10 @@ pub enum Error {
     #[error("can't read line as offset {1} from {2}")]
     ReadLineOffset(#[source] io::Error, u64, PathBuf),
     #[error("can't decode csv line")]
-    CsvLine(#[from] csv_line::Error),
+    Csv(#[from] csv::Error),
     #[error("can't decode csv line from `{file}` at {offset}: {line}")]
     DecodeDetails {
-        source: csv_line::Error,
+        source: csv::Error,
         file: PathBuf,
         offset: u64,
         line: String,
@@ -196,7 +196,7 @@ where
                     e,
                     self.index,
                     self.buf_name.to_owned(),
-                )))
+                )));
             }
         };
         let cur_offset = match O::try_from(self.offset) {
@@ -206,7 +206,7 @@ where
                     self.offset,
                     self.index,
                     self.buf_name.to_owned(),
-                )))
+                )));
             }
         };
         self.index += 1;
@@ -217,7 +217,7 @@ where
                     e,
                     self.index,
                     self.buf_name.to_owned(),
-                )))
+                )));
             }
         };
         Some(Ok((line, cur_offset)))

@@ -1,22 +1,22 @@
 [package]
 description = "Csv index with partially cached columns"
-edition = "2021"
+edition = "2024"
 license = "MIT"
 name = "csv-partial-cache"
 repository = "https://github.com/imbolc/csv-partial-cache"
-version = "0.2.0"
+version = "0.3.0"
 
 [features]
 default = ["cache"]
 cache = ["dep:serde_json"]
 
 [dependencies]
-csv-line = "0.1"
+csv-line = "0.3"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", optional = true }
-thiserror = "1"
+thiserror = "2"
 tokio = { version = "1", features = ["fs", "io-util"] }
+csv = "1"
 
 [dev-dependencies]
-rusty-hook = "0.11"
 tokio-test = "0.4"
