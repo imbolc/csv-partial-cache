@@ -2,24 +2,20 @@
 [![Crates.io](https://img.shields.io/crates/v/csv-partial-cache.svg)](https://crates.io/crates/csv-partial-cache)
 [![Docs.rs](https://docs.rs/csv-partial-cache/badge.svg)](https://docs.rs/csv-partial-cache)
 
-<!-- cargo-sync-readme start -->
-
 # csv-partial-cache
 
 Csv index with partially cached columns
 
-It meant to allow a performant access to immutable csv data without importing it to database.
-The idea is to keep line offsets with frequently used columns in memory, while accessing the
-full line following the offset.
+It meant to allow a performant access to immutable csv data without importing it
+to database. The idea is to keep line offsets with frequently used columns in
+memory, while accessing the full line following the offset.
 
-
-Usage
------
+## Usage
 
 Let's say we have a table of http statuses:
 
 | code | name                | description                                           |
-|------|---------------------|-------------------------------------------------------|
+| ---- | ------------------- | ----------------------------------------------------- |
 | 100  | Continue            | Status code 100 Continue tells you that a part ...    |
 | 101  | Switching Protocols | There have been many HTTP protocols created since ... |
 
@@ -75,35 +71,15 @@ tokio_test::block_on(async {
 })
 ```
 
-<!-- cargo-sync-readme end -->
-
 ## Contributing
 
-We appreciate all kinds of contributions, thank you!
-
-
-### Note on README
-
-Most of the readme is automatically copied from the crate documentation by [cargo-sync-readme][].
-This way the readme is always in sync with the docs and examples are tested.
-
-So if you find a part of the readme you'd like to change between `<!-- cargo-sync-readme start -->`
-and `<!-- cargo-sync-readme end -->` markers, don't edit `README.md` directly, but rather change
-the documentation on top of `src/lib.rs` and then synchronize the readme with:
-```bash
-cargo sync-readme
-```
-(make sure the cargo command is installed):
-```bash
-cargo install cargo-sync-readme
-```
-
-If you have [rusty-hook] installed the changes will apply automatically on commit.
-
+Please run [.pre-commit.sh] before submitting a pull request to ensure all
+checks pass.
 
 ## License
 
-This project is licensed under the [MIT license](LICENSE).
+This project is licensed under the [MIT license][license].
 
-[cargo-sync-readme]: https://github.com/phaazon/cargo-sync-readme
-[rusty-hook]: https://github.com/swellaby/rusty-hook
+[license]: https://github.com/imbolc/csv-partial-cache/blob/main/LICENSE
+[.pre-commit.sh]:
+  https://github.com/imbolc/csv-partial-cache/blob/main/.pre-commit.sh

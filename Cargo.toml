@@ -6,17 +6,39 @@ name = "csv-partial-cache"
 repository = "https://github.com/imbolc/csv-partial-cache"
 version = "0.3.0"
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [features]
 default = ["cache"]
 cache = ["dep:serde_json"]
 
 [dependencies]
+csv = "1"
 csv-line = "0.3"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", optional = true }
 thiserror = "2"
 tokio = { version = "1", features = ["fs", "io-util"] }
-csv = "1"
 
 [dev-dependencies]
 tokio-test = "0.4"
+
+[lints.rust]
+unsafe_code = "forbid"
+future_incompatible = { level = "deny", priority = -2 }
+keyword_idents = { level = "deny", priority = -2 }
+let_underscore = { level = "deny", priority = -2 }
+missing_docs = "deny"
+nonstandard_style = { level = "deny", priority = -2 }
+refining_impl_trait = { level = "deny", priority = -2 }
+rust_2018_compatibility = { level = "deny", priority = -2 }
+rust_2018_idioms = { level = "deny", priority = -2 }
+rust_2021_compatibility = { level = "deny", priority = -2 }
+rust_2024_compatibility = { level = "deny", priority = -2 }
+unreachable_pub = { level = "warn", priority = -1 }
+unused = { level = "warn", priority = -1 }
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
