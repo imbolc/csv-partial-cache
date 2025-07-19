@@ -80,6 +80,6 @@ checks pass.
 
 This project is licensed under the [MIT license][license].
 
-[license]: https://github.com/imbolc/csv-partial-cache/blob/main/LICENSE
 [.pre-commit.sh]:
   https://github.com/imbolc/csv-partial-cache/blob/main/.pre-commit.sh
+[license]: https://github.com/imbolc/csv-partial-cache/blob/main/LICENSE
